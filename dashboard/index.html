@@ -81,50 +81,54 @@ const ACCESS_TOKEN = "PANITIA2026"; // ganti sesuai kebutuhan
     function checkAccess() {
     const isAuthorized = sessionStorage.getItem("AUTHORIZED");
 
-        if (isAuthorized === "true") {
-            loadDashboard();
-            return;
-        }
-
-        Swal.fire({
-            title: 'Akses Scanner',
-            text: 'Masukkan token untuk melanjutkan',
-            input: 'password',
-            inputPlaceholder: 'Masukkan token...',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            confirmButtonText: 'Masuk',
-            confirmButtonColor: '#2563eb',
-            preConfirm: (inputValue) => {
-                if (!inputValue) {
-                    Swal.showValidationMessage('Token tidak boleh kosong');
-                    return false;
-                }
-
-                if (inputValue !== ACCESS_TOKEN) {
-                    Swal.showValidationMessage('Token salah ❌');
-                    return false;
-                }
-
-                return true;
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                sessionStorage.setItem("AUTHORIZED", "true");
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Akses Diberikan',
-                    timer: 1000,
-                    showConfirmButton: false
-                }).then(() => {
-                    // refresh tiap 5 detik
-                    setInterval(loadDashboard, 5000);
-                    loadDashboard();
-                });
-            }
-        });
+    if (isAuthorized === "true") {
+        startDashboard();
+        return;
     }
+
+    Swal.fire({
+        title: 'Akses Dashboard',
+        text: 'Masukkan token untuk melanjutkan',
+        input: 'password',
+        inputPlaceholder: 'Masukkan token...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        confirmButtonText: 'Masuk',
+        confirmButtonColor: '#2563eb',
+        preConfirm: (inputValue) => {
+            if (!inputValue) {
+                Swal.showValidationMessage('Token tidak boleh kosong');
+                return false;
+            }
+
+            if (inputValue !== ACCESS_TOKEN) {
+                Swal.showValidationMessage('Token salah ❌');
+                return false;
+            }
+
+            return true;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            sessionStorage.setItem("AUTHORIZED", "true");
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Akses Diberikan',
+                timer: 1000,
+                showConfirmButton: false
+            }).then(() => {
+                startDashboard();
+            });
+        }
+    });
+}
+    
+function startDashboard() {
+    loadDashboard();
+    setInterval(loadDashboard, 5000);
+}
+    
 let lastRenderedData = [];
 
 async function loadDashboard() {
@@ -202,9 +206,6 @@ function logout() {
     location.reload();
 }
 
-// refresh tiap 5 detik
-// setInterval(loadDashboard, 5000);
-// loadDashboard();
 </script>
 
 </body>
