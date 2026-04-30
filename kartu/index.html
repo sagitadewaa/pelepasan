@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kartu Siswa</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 tailwind.config = {
   plugins: [tailwindcssLineClamp],
@@ -68,7 +69,59 @@ tailwind.config = {
 
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxFTEjFQTnZWxsRRcWKPoTArV0KH9d1xUGz3pWBumOltJ-SGJcJvPm_7tJp0MgaD6Xumg/exec";
+const ACCESS_TOKEN = "PANITIA2026"; // ganti sesuai kebutuhan
 
+    // 🚀 Langsung start scanner (tanpa config)
+    document.addEventListener("DOMContentLoaded", () => {
+    checkAccess();
+    });
+
+    function checkAccess() {
+    const isAuthorized = sessionStorage.getItem("AUTHORIZED");
+
+    if (isAuthorized === "true") {
+        loadData();();
+        return;
+    }
+
+    Swal.fire({
+        title: 'Akses Kartu',
+        text: 'Masukkan token untuk melanjutkan',
+        input: 'password',
+        inputPlaceholder: 'Masukkan token...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        confirmButtonText: 'Masuk',
+        confirmButtonColor: '#2563eb',
+        preConfirm: (inputValue) => {
+            if (!inputValue) {
+                Swal.showValidationMessage('Token tidak boleh kosong');
+                return false;
+            }
+
+            if (inputValue !== ACCESS_TOKEN) {
+                Swal.showValidationMessage('Token salah ❌');
+                return false;
+            }
+
+            return true;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            sessionStorage.setItem("AUTHORIZED", "true");
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Akses Diberikan',
+                timer: 1000,
+                showConfirmButton: false
+            }).then(() => {
+                loadData();();
+            });
+        }
+    });
+}
+  
 function toHuruf(num) {
   const huruf = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   return huruf[num - 1] || num;
@@ -131,7 +184,7 @@ async function loadData() {
   }
 }
 
-loadData();
+
 </script>
 
 </body>
