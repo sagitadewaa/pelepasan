@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Absensi</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
     @keyframes highlightFade {
     0% { background-color: #bbf7d0; }
@@ -22,6 +23,7 @@
 <div class="max-w-5xl mx-auto">
 
   <h1 class="text-2xl font-bold mb-4 text-center">📊 Dashboard Absensi Wisuda</h1>
+  <button onclick="logout()" class="text-red-500 text-sm">Logout</button>
 
   <!-- Statistik -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -80,7 +82,7 @@ const ACCESS_TOKEN = "PANITIA2026"; // ganti sesuai kebutuhan
     const isAuthorized = sessionStorage.getItem("AUTHORIZED");
 
         if (isAuthorized === "true") {
-            startScanner();
+            loadDashboard();
             return;
         }
 
@@ -116,7 +118,9 @@ const ACCESS_TOKEN = "PANITIA2026"; // ganti sesuai kebutuhan
                     timer: 1000,
                     showConfirmButton: false
                 }).then(() => {
-                    startScanner();
+                    // refresh tiap 5 detik
+                    setInterval(loadDashboard, 5000);
+                    loadDashboard();
                 });
             }
         });
@@ -192,10 +196,15 @@ async function loadDashboard() {
     console.error(err);
   }
 }
+    
+function logout() {
+    sessionStorage.removeItem("AUTHORIZED");
+    location.reload();
+}
 
 // refresh tiap 5 detik
-setInterval(loadDashboard, 5000);
-loadDashboard();
+// setInterval(loadDashboard, 5000);
+// loadDashboard();
 </script>
 
 </body>
