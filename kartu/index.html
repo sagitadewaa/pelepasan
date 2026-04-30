@@ -80,7 +80,7 @@ const ACCESS_TOKEN = "PANITIA2026"; // ganti sesuai kebutuhan
     const isAuthorized = sessionStorage.getItem("AUTHORIZED");
 
     if (isAuthorized === "true") {
-        loadData();();
+        loadData();
         return;
     }
 
@@ -116,7 +116,7 @@ const ACCESS_TOKEN = "PANITIA2026"; // ganti sesuai kebutuhan
                 timer: 1000,
                 showConfirmButton: false
             }).then(() => {
-                loadData();();
+                loadData();
             });
         }
     });
@@ -169,10 +169,10 @@ async function loadData() {
             <!-- Info -->
             <div class="text-xs mt-2 space-y-1">
             <p>Jurusan : <b>${s.kelas}</b></p>
-            <p>Tabel : <b>${toHuruf(s.posisi)}</b></p>
+            <p>Tabel : <b>${toHuruf(parseInt(s.posisi))}</b></p>
             <p>No. Urut : ${s.nisn}</p>
             </div>
-
+          </div>
         </div>
       `;
 
@@ -183,8 +183,6 @@ async function loadData() {
     console.error(err);
   }
 }
-
-
 </script>
 
 </body>
