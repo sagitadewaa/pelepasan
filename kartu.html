@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kartu Siswa</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  plugins: [tailwindcssLineClamp],
+}
+</script>
+<style>
+    @media print {
+    .no-print {
+        display: none !important;
+    }
+    body {
+        background: white !important;
+    }
+    #container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .card {
+        width: 250px;
+        height: 350px;
+        break-inside: avoid;
+    }
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .back-btn {
+        margin-bottom: 10px;
+        }
+
+        .back-btn a {
+        display: inline-block;
+        background: #2d89ef;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 13px;
+        }
+
+        .back-btn a:hover {
+        background: #1e6fd9;
+        }
+    }
+</style>
+</head>
+
+<body class="bg-gray-100 p-4">
+
+<h1 class="text-xl font-bold text-center mb-4 no-print">🎓 PELEPASAN</h1>
+
+<div class="text-center mb-4 no-print">
+  <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded">
+    🖨️ Print
+  </button>
+  <div class="back-btn">
+    <a href="/index.html">← Menu Utama</a>
+  </div>
+</div>
+
+<div id="container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxFTEjFQTnZWxsRRcWKPoTArV0KH9d1xUGz3pWBumOltJ-SGJcJvPm_7tJp0MgaD6Xumg/exec";
+
+function toHuruf(num) {
+  const huruf = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  return huruf[num - 1] || num;
+}
+
+async function loadData() {
+  try {
+    const res = await fetch(`${GAS_URL}?action=kartu`);
+    const data = await res.json();
+
+    const container = document.getElementById("container");
+    container.innerHTML = "";
+
+    data.forEach(s => {
+
+      const card = `
+
+        <div class="card relative overflow-hidden rounded-2xl shadow-lg text-center p-4 bg-white w-[250px] h-[350px] flex flex-col justify-between">
+
+        <!-- 🔵 Background Gradient -->
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-500 via-blue-400 to-blue-600 opacity-90"></div>
+
+        <!-- 🔵 Abstract Shape -->
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-10 rounded-full blur-xl"></div>
+
+        <!-- 🔵 Content -->
+
+        <div class="relative z-10 text-white">
+
+            <img src="https://i.ibb.co.com/sdV75wcH/Logo.png" class="w-20 mx-auto mb-2">
+            <div class="mb-2 leading-tight">
+                <div class="text-white text-[17px] font-bold">🎓 PELEPASAN 2026 🎓</div>
+                <div class="text-white/90 text-[12px] font-bold">SMK Bintang Persada Denpasar</div>
+            </div>
+
+            <!-- QR -->
+            <img src="${s.qr}" class="mx-auto mb-2 w-20 h-20 bg-white p-1 rounded"/>
+
+            <!-- Nama -->
+            <h2 class="font-bold text-sm mt-2 leading-tight line-clamp-2">
+                ${s.nama}
+            </h2>
+
+            <!-- Info -->
+            <div class="text-xs mt-2 space-y-1">
+            <p>Jurusan : <b>${s.kelas}</b></p>
+            <p>Tabel : <b>${toHuruf(s.posisi)}</b></p>
+            <p>No. Urut : ${s.nisn}</p>
+            </div>
+
+        </div>
+      `;
+
+      container.innerHTML += card;
+    });
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+loadData();
+</script>
+
+</body>
+</html>

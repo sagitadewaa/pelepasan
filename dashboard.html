@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Absensi</title>
+<script src="https://cdn.tailwindcss.com"></script>
+    <style>
+    @keyframes highlightFade {
+    0% { background-color: #bbf7d0; }
+    100% { background-color: transparent; }
+    }
+
+    .highlight {
+    animation: highlightFade 2s ease-out;
+    }
+    </style>
+</head>
+
+<body class="bg-gray-100 p-4">
+
+<div class="max-w-5xl mx-auto">
+
+  <h1 class="text-2xl font-bold mb-4 text-center">📊 Dashboard Absensi Wisuda</h1>
+
+  <!-- Statistik -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white p-4 rounded shadow text-center">
+      <h2 class="text-gray-500">Total</h2>
+      <p id="total" class="text-2xl font-bold">0</p>
+    </div>
+    <div class="bg-green-100 p-4 rounded shadow text-center">
+      <h2 class="text-green-700">Hadir</h2>
+      <p id="hadir" class="text-2xl font-bold">0</p>
+    </div>
+    <div class="bg-red-100 p-4 rounded shadow text-center">
+      <h2 class="text-red-700">Belum</h2>
+      <p id="belum" class="text-2xl font-bold">0</p>
+    </div>
+    <div class="bg-blue-100 p-4 rounded shadow text-center">
+      <h2 class="text-blue-700">%</h2>
+      <p id="persen" class="text-2xl font-bold">0%</p>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="w-full bg-gray-300 rounded-full h-6 mb-6">
+    <div id="progress" class="bg-blue-600 h-6 rounded-full text-center text-white text-sm"></div>
+  </div>
+
+  <!-- Tabel -->
+  <div class="bg-white rounded shadow overflow-auto max-h-[400px]">
+    <table class="w-full text-sm">
+      <thead class="bg-orange-100 sticky top-0">
+        <tr>
+          <th class="p-2 text-center">No</th>
+          <th class="p-2 text-left">Nama</th>
+          <th class="p-2 text-center">Kelas</th>
+          <th class="p-2 text-center">Table</th>
+          <th class="p-2 text-left">Status</th>
+          <th class="p-2 text-left">Waktu</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxFTEjFQTnZWxsRRcWKPoTArV0KH9d1xUGz3pWBumOltJ-SGJcJvPm_7tJp0MgaD6Xumg/exec";
+
+let lastRenderedData = [];
+
+async function loadDashboard() {
+  try {
+    const res = await fetch(`${GAS_URL}?action=dashboard`);
+    const data = await res.json();
+
+    // Statistik
+    document.getElementById("total").innerText = data.total;
+    document.getElementById("hadir").innerText = data.hadir;
+    document.getElementById("belum").innerText = data.belum;
+    document.getElementById("persen").innerText = data.persen + "%";
+
+    // Progress bar
+    const progress = document.getElementById("progress");
+    progress.style.width = data.persen + "%";
+    progress.innerText = data.persen + "%";
+
+    // 🔥 FIX: reverse hanya sekali
+    const reversedData = [...data.data].reverse();
+
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+
+    reversedData.forEach((item, index) => {
+
+      let rowClass = "";
+
+      // 🔴 Belum hadir
+      if (item.status.toLowerCase() !== "hadir") {
+        rowClass = "bg-red-100 text-red-800";
+      } else {
+        // ⚪ Zebra
+        rowClass = index % 2 === 0 ? "bg-white" : "bg-blue-50";
+      }
+
+      // 🟢 Highlight jika baru scan
+      const isNew =
+        lastRenderedData.length &&
+        (!lastRenderedData[index] ||
+          lastRenderedData[index].waktu !== item.waktu) &&
+        item.status.toLowerCase() === "hadir";
+
+        const highlightClass = isNew ? "highlight" : "";
+
+        // ✅ TAMBAHKAN DI SINI
+        const statusBadge = item.status.toLowerCase() === "hadir"
+        ? '<span class="bg-green-200 text-green-800 px-2 py-1 rounded text-xs">Hadir</span>'
+        : '<span class="bg-red-200 text-red-800 px-2 py-1 rounded text-xs">Belum</span>';
+
+      const row = `
+        <tr class="${rowClass} ${highlightClass} transition-all duration-500">
+            <td class="p-2 text-center font-semibold">${index + 1}.</td>
+            <td class="p-2">${item.nama}</td>
+            <td class="p-2 text-center font-semibold">${item.kelas}</td>
+            <td class="p-2 text-center font-semibold">${item.posisi}</td>
+            <td class="p-2">${statusBadge}</td>
+            <td class="p-2">${item.waktu || '-'}</td>
+        </tr>
+      `;
+
+      tbody.innerHTML += row;
+    });
+
+    // 🔥 simpan data yang sudah dibalik
+    lastRenderedData = reversedData;
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// refresh tiap 5 detik
+setInterval(loadDashboard, 5000);
+loadDashboard();
+</script>
+
+</body>
+</html>

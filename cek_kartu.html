@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kartu Pelepasan</title>
+  <style>
+    * {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  margin: 0;
+  padding: 12px;
+  overflow-x: hidden; /* penting: cegah geser kanan */
+}
+
+h2 {
+  text-align: center;
+  font-size: 18px;
+}
+
+/* CONTAINER */
+.container {
+  width: 100%;
+  max-width: 420px; /* diperkecil biar aman di HP */
+  margin: auto;
+}
+
+/* INPUT */
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+/* RESULT */
+.result {
+  margin-top: 8px;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.result div {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.result div:last-child {
+  border-bottom: none;
+}
+
+.result div:hover {
+  background: #f1f1f1;
+}
+
+.badge-hari {
+  display: inline-block;
+  background: #16a34a;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-left: 4px;
+  animation: glowHijau 1.5s infinite;
+}
+
+/* CARD */
+.card {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid #000;
+  background: white;
+}
+
+/* HEADER */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #2d89ef; /* 🔵 warna utama */
+  color: white; /* teks putih */
+  border-bottom: 2px solid #000;
+}
+
+.header-text h4,
+.header-text p,
+.title {
+  color: white;
+}
+
+.logo {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  flex-shrink: 0; /* biar tidak ketekan */
+}
+
+.header-text {
+  flex: 1;
+  min-width: 0; /* penting untuk text wrap */
+}
+
+.header-text h4 {
+  margin: 0;
+  font-size: 14px;
+  word-break: break-word;
+  text-align: center;
+}
+
+.header-text p {
+  margin: 0;
+  font-size: 13px;
+  text-align: center;
+}
+
+.title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+/* BODY (WARNA BERBEDA) */
+.card-body {
+  padding: 12px;
+  background: #f9fafb; /* abu lembut */
+}
+
+/* ROW */
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 6px 0;
+  font-size: 13px;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+/* striping biar keren */
+.row:nth-child(odd) {
+  background: #ffffff;
+}
+
+.row:nth-child(even) {
+  background: #eef2f7;
+}
+
+/* label kiri */
+.label {
+  font-weight: bold;
+  flex: 0 0 40%;
+}
+
+/* value kanan */
+.value {
+  flex: 1;
+  text-align: right;
+  word-break: break-word; /* penting untuk nama panjang */
+}
+
+/* QR */
+.qr {
+  text-align: center;
+  padding: 12px;
+  border-top: 1px dashed #000;
+  background: #ffffff;
+}
+
+.qr img {
+  width: 100px;
+  max-width: 100%;
+}
+
+.denah {
+  padding: 12px;
+  border-top: 2px solid #000;
+  background: #fff;
+}
+
+.denah h4 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.denah-box {
+  text-align: center;
+}
+
+/* panggung */
+.panggung {
+  background: #2d89ef;
+  color: white;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+/* grid meja */
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* baris */
+.row-table {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* meja */
+.table {
+  width: 48px;
+  height: 48px;
+  background: #16a34a;
+  color: white;
+  font-size: 10px;
+  border-radius: 8px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  line-height: 1.1;
+}
+
+/* nomor meja */
+.table-circle .nomor {
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* kapasitas */
+.table .kapasitas {
+  font-size: 9px;
+  opacity: 0.9;
+}
+
+/* keterangan */
+.keterangan {
+  margin-top: 10px;
+  font-size: 11px;
+  color: #555;
+}
+
+/* meja lingkaran */
+.table-circle {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #16a34a;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+
+/* nomor meja */
+.table-circle .nomor {
+  font-weight: bold;
+  font-size: 12px;
+}
+
+/* kapasitas */
+.table-circle .kapasitas {
+  font-size: 9px;
+}
+
+/* VIP */
+.table-circle.vip {
+  background: #f59e0b;
+  color: black;
+}
+
+/* posisi siswa */
+.table-circle.aktif {
+  background: #dc2626;
+  animation: glowHijau 1.5s infinite;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+/* layout */
+.row-table {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+/* jarak tengah */
+.gap-left {
+  margin-left: 20px;
+}
+
+
+/* baris meja */
+.row-table {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+/* 🔥 JARAK KHUSUS TENGAH */
+.row-gap {
+  margin-top: 20px; /* ⬅️ ini pemisah utama */
+}
+
+/* jarak tengah antar meja */
+.gap-left {
+  margin-left: 20px; /* ⬅️ ini jarak antara meja 3 & 4 */
+}
+
+.loading {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+}
+
+.btn-link {
+  background: #2d89ef;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  text-decoration: none;
+
+}
+
+.no-link {
+  color: #999;
+  font-size: 11px;
+  font-style: italic;
+}
+
+/* container biar center */
+.link-cell {
+  display: flex;
+  justify-content: center;  /* tengah horizontal */
+  align-items: center;      /* tengah vertical */
+}
+
+/* style umum */
+/* base (biar konsisten posisi) */
+.link-btn {
+  display: inline-block;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+/* ✅ LINK AKTIF (LEBIH BESAR) */
+.link-btn.aktif {
+  background: #16a34a;
+  color: white;
+  font-size: 13px;      /* ⬆️ BESAR */
+  padding: 8px 12px;    /* ⬆️ BESAR */
+  /* min-width: 80px; */
+}
+
+/* ❌ NONAKTIF (LEBIH KECIL) */
+.link-btn.nonaktif {
+  background: #e5e7eb;
+  color: #888;
+  font-size: 11px;      /* ⬇️ KECIL */
+  padding: 4px 8px;     /* ⬇️ KECIL */
+  cursor: not-allowed;
+}
+
+.loading.show {
+  display: flex;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ddd;
+  border-top: 4px solid #2d89ef;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading p {
+  color: white;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.row.hidden-row {
+  display: none !important;
+}
+
+.value {
+  text-align: right;
+}
+
+/* badge status */
+.status {
+  display: inline-block; /* ⬅️ penting */
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  width: fit-content; /* ⬅️ biar pas teks */
+}
+
+/* warna */
+.status-ok {
+  background: #16a34a;
+}
+
+.status-bad {
+  background: #dc2626;
+}
+
+.popup {
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-top: 2px solid #000;
+  padding: 15px;
+  z-index: 9999;
+  transition: 0.3s;
+  max-height: 60%;
+  overflow-y: auto;
+}
+
+.popup.show {
+  bottom: 0;
+}
+
+.popup h4 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.popup ul {
+  padding: 0;
+  list-style: none;
+}
+
+.popup li {
+  padding: 6px;
+  border-bottom: 1px dashed #ccc;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* EXTRA SMALL DEVICE */
+@media (max-width: 360px) {
+  .container {
+    max-width: 100%;
+  }
+
+  .row {
+    font-size: 12px;
+  }
+
+  .logo {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+/* BACKDROP */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+}
+
+/* CONTENT */
+.modal-content {
+  background: #fff;
+  margin: 10% auto;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+}
+
+/* HEADER */
+.modal-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 🔥 center */
+  background: #2d89ef;
+  color: white;
+  padding: 10px;
+}
+
+/* CLOSE BUTTON */
+.close {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* BODY */
+.modal-body {
+  padding: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* LIST */
+.modal-body ul {
+  list-style: none;
+  padding: 0;
+}
+
+.modal-body li {
+  padding: 8px;
+  border-bottom: 1px dashed #ccc;
+  font-size: 14px;
+}
+
+.vip-msg {
+  text-align: center;
+  padding: 20px;
+}
+
+.vip-msg .icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+/* animasi */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(-20px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+/* animasi berkedip */
+@keyframes glowHijau {
+  0% {
+    box-shadow: 0 0 0px #16a34a;
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 10px #16a34a;
+     opacity: 0.5;
+  }
+  100% {
+    box-shadow: 0 0 0px #16a34a;
+    opacity: 1;
+  }
+}
+
+.link-btn.aktif {
+  animation: glowHijau 1.5s infinite;
+}
+
+  </style>
+</head>
+
+<body>
+<div id="popup" class="popup"></div>
+<div class="container">
+
+  <h2>Cari Kartu Pelepasan</h2>
+
+  <input type="text" id="search" placeholder="Ketik nama..." onkeyup="cariNama()">
+
+  <div id="result" class="result"></div>
+
+  <div id="cardContainer"></div>
+
+</div>
+
+<!-- MODAL SISWA -->
+<div id="modalSiswa" class="modal">
+  <div class="modal-content">
+
+    <div class="modal-header">
+      <h3 id="modalTitle">Daftar Siswa</h3>
+      <span class="close" onclick="closeModal()">&times;</span>
+    </div>
+
+    <div id="modalBody" class="modal-body"></div>
+
+  </div>
+</div>
+
+<div id="loading" class="loading">
+  <div class="spinner"></div>
+  <p>Memuat data...</p>
+</div>
+
+<script>
+let dataSiswa = [];
+
+function toHuruf(num) {
+  const huruf = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  return huruf[num - 1] || num;
+}
+
+// 🔗 GANTI DENGAN URL WEB APP GAS
+const API_URL = "https://script.google.com/macros/s/AKfycbxFTEjFQTnZWxsRRcWKPoTArV0KH9d1xUGz3pWBumOltJ-SGJcJvPm_7tJp0MgaD6Xumg/exec?action=cek_kartu";
+
+function loadData() {
+  const input = document.getElementById("search");
+
+  input.disabled = true;
+  document.getElementById("loading").classList.add("show");
+
+  fetch(API_URL)
+    .then(res => res.json())
+    .then(res => {
+      dataSiswa = res;
+
+      document.getElementById("loading").classList.remove("show");
+      input.disabled = false;
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Gagal mengambil data");
+    });
+}
+
+function cariNama() {
+  const keyword = document.getElementById("search").value.toLowerCase();
+  const resultDiv = document.getElementById("result");
+
+  resultDiv.innerHTML = "";
+
+  // ✅ CEGAH ERROR SAAT DATA BELUM SIAP
+  if (!dataSiswa || dataSiswa.length === 0) {
+    return;
+  }
+
+  if (!keyword) return;
+
+  const filtered = dataSiswa.filter(s =>
+    (s.nama || "").toLowerCase().includes(keyword)
+  );
+
+  filtered.slice(0, 10).forEach(s => {
+    const div = document.createElement("div");
+    div.textContent = s.nama + " - " + s.jurusan;
+    div.onclick = () => tampilkanKartu(s);
+    resultDiv.appendChild(div);
+  });
+}
+
+function showSiswa(noMeja) {
+
+  // skip VIP
+  if (String(noMeja).includes("VIP")) {
+    document.getElementById("modalTitle").innerText = "Meja VIP";
+
+    document.getElementById("modalBody").innerHTML = `
+    <div style="text-align:center; padding:20px;">
+      <div style="font-size:30px;">👑</div>
+      <p style="font-size:14px; color:#555;">
+        Meja VIP tidak menampilkan data tamu
+      </p>
+    </div>
+  `;
+
+    document.getElementById("modalSiswa").style.display = "block";
+
+    return;
+  }
+
+  // filter data
+  const list = dataSiswa.filter(s => String(s.posisi) === String(noMeja));
+
+  let html = "";
+
+  if (list.length === 0) {
+    html = "<p>Tidak ada siswa</p>";
+  } else {
+    html = `
+      <ul>
+        ${list.map((s,i)=>`
+          <li>
+            <b>${i+1}. ${s.nama}</b> - <small>${s.jurusan}</small>
+            
+          </li>
+        `).join("")}
+      </ul>
+    `;
+  }
+
+  document.getElementById("modalTitle").innerText = "Table " + toHuruf(noMeja);
+  document.getElementById("modalBody").innerHTML = html;
+
+  document.getElementById("modalSiswa").style.display = "block";
+}
+
+function closeModal() {
+  document.getElementById("modalSiswa").style.display = "none";
+}
+
+function tampilkanKartu(s) {
+  document.getElementById("result").innerHTML = "";
+
+  const logo = "https://i.ibb.co.com/sdV75wcH/Logo.png";
+
+  document.getElementById("loading").classList.add("show");
+
+  // 🔥 DENAH MANUAL
+  const denah = [
+    // BARIS 1 (VIP)
+    [
+      { no: "VIP-1", kapasitas: 10 },
+      { no: "VIP-2", kapasitas: 10 },
+      { no: "VIP-3", kapasitas: 8 },
+      { no: "VIP-4", kapasitas: 8 },
+      { no: "VIP-5", kapasitas: 10 },
+      { no: "VIP-6", kapasitas: 10 }
+    ],
+
+    // BARIS 2
+    [
+      { no: 6, kapasitas: 10 },
+      { no: 5, kapasitas: 10 },
+      { no: 4, kapasitas: 10 },
+      { no: 3, kapasitas: 9 },
+      { no: 2, kapasitas: 10 },
+      { no: 1, kapasitas: 10 }
+    ],
+
+    // BARIS 3
+    [
+      { no: 12, kapasitas: 10 },
+      { no: 11, kapasitas: 10 },
+      { no: 10, kapasitas: 10 },
+      { no: 9, kapasitas: 10 },
+      { no: 8, kapasitas: 10 },
+      { no: 7, kapasitas: 10 }
+    ],
+
+    // BARIS 4
+    [
+      { no: 18, kapasitas: 10 },
+      { no: 17, kapasitas: 10 },
+      { no: 16, kapasitas: 10 },
+      { no: 15, kapasitas: 9 },
+      { no: 14, kapasitas: 10 },
+      { no: 13, kapasitas: 10 }
+    ],
+
+    // BARIS 5
+    [
+      { no: 24, kapasitas: 8 },
+      { no: 23, kapasitas: 10 },
+      { no: 22, kapasitas: 10 },
+      { no: 21, kapasitas: 10 },
+      { no: 20, kapasitas: 10 },
+      { no: 19, kapasitas: 10 }
+    ]
+  ];
+
+  const posisiSiswa = String(s.posisi);
+
+  // 🔥 GENERATE DENAH
+  const denahHtml = `
+    <div class="grid">
+      ${denah.map((row, rowIndex) => `
+        <div class="row-table">
+          ${row.map((m, col) => `
+            <div class="table-circle 
+              ${col === 3 ? 'gap-left' : ''} 
+              ${rowIndex === 0 ? 'vip' : ''} 
+              ${String(m.no) === posisiSiswa ? 'aktif' : ''}"
+              
+              onclick="showSiswa('${m.no}')"
+            >
+              
+              <div class="nomor">
+                ${typeof m.no === "number" ? toHuruf(m.no) : m.no}
+              </div>
+              <div class="kapasitas">
+                ${m.kapasitas === "-" ? "VIP" : m.kapasitas + " org"}
+              </div>
+
+            </div>
+          `).join("")}
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  setTimeout(() => {
+
+    const html = `
+      <div class="card">
+
+        <!-- HEADER -->
+        <div class="card-header">
+          <img src="${logo}" class="logo">
+          <div class="header-text">
+            <h4>SMK BINTANG PERSADA DENPASAR</h4>
+            <div class="title">🎓 PELEPASAN 2026 🎓</div>
+          </div>
+        </div>
+
+        <!-- BODY -->
+        <div class="card-body">
+          <div class="row"><span class="label">Nama</span><span class="value">${s.nama}</span></div>
+          <div class="row"><span class="label">Jurusan</span><span class="value">${s.jurusan}</span></div>
+          <div class="row"><span class="label">Tabel</span><span class="value">${toHuruf(s.posisi)}</span></div>
+          <div class="row"><span class="label">No. Urut</span><span class="value">${s.no_urut}</span></div>
+        </div>
+
+        <!-- QR -->
+        <div class="qr">
+          <img src="${s.qrcode}" alt="QR Code">
+        </div>
+
+        <p style="text-align:center; font-size:12px;">
+          Kartu ini hanya digunakan untuk mengecek secara online (hilang/lupa bawa)
+        </p>
+
+        <!-- DENAH -->
+        <div class="denah">
+          <h4>Denah Tempat Duduk</h4>
+
+          <div class="denah-box">
+
+            <div class="panggung">PANGGUNG UTAMA</div>
+
+            ${denahHtml}
+
+            <div class="keterangan">
+              <small>
+                • Baris depan adalah VIP & Guru<br>
+                • Baris ke-2 mulai siswa<br>
+                • Setiap meja 9–10 siswa<br>
+                • Posisi meja siswa ditandai warna merah
+              </small>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    `;
+
+    document.getElementById("cardContainer").innerHTML = html;
+
+    document.getElementById("loading").classList.remove("show");
+
+  }, 300);
+}
+
+
+loadData();
+// 🔥 LETAKKAN DI SINI (PALING BAWAH)
+  window.onclick = function(event) {
+    const modal = document.getElementById("modalSiswa");
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi Pelepasan 2026</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTML5 QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <!-- SweetAlert2 for nice popups -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        /* Custom tweaks */
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        #reader { width: 100%; max-width: 500px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: none !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); background: white;}
+        #reader video { border-radius: 12px; object-fit: cover; }
+        #reader__dashboard_section_csr span { display: block; margin-top: 10px; color: #374151; }
+        #reader__dashboard_section_swaplink { text-decoration: none; color: #2563eb; font-weight: 600; margin-top: 10px; display: inline-block; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-md p-4">
+        <div class="container mx-auto flex justify-between items-center max-w-md">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="ph-fill ph-graduation-cap text-2xl"></i>
+                Absensi Pelepasan 2026
+            </h1>
+            <!-- <button onclick="openConfig()" class="p-2 bg-blue-700 hover:bg-blue-800 rounded-full transition-colors">
+                <i class="ph ph-logout text-xl"></i>
+            </button> -->
+            <button onclick="logout()" class="class="p-2 bg-blue-700 hover:bg-blue-800 rounded-full transition-colors">
+                <i class="ph ph-sign-out text-xl"></i>
+            </button>
+
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4 container mx-auto max-w-md">
+        
+        <!-- Welcome Card -->
+        <div class="w-full bg-white rounded-xl shadow-md p-5 mb-6 text-center">
+            <h2 class="text-gray-800 font-semibold text-lg mb-1">Scanner QR Code</h2>
+            <p class="text-sm text-gray-500 mb-4">Arahkan kamera ke QR Code milik wisudawan untuk mencatat kehadiran.</p>
+            
+            <!-- Scanner Container -->
+            <div id="reader"></div>
+
+            <div id="loading" class="hidden mt-4 text-blue-600 flex justify-center items-center gap-2 font-medium">
+                <i class="ph ph-spinner animate-spin text-xl"></i> Memverifikasi data...
+            </div>
+        </div>
+
+        <!-- Recent Result Area -->
+        <div id="resultCard" class="w-full rounded-xl shadow-md p-5 hidden text-center transition-all duration-300">
+            <div id="resultIcon" class="text-4xl mb-2"></div>
+            <h3 id="resultTitle" class="font-bold text-lg mb-1"></h3>
+            <p id="resultMessage" class="text-sm"></p>
+        </div>
+
+    </main>
+
+    <!-- Modal Konfigurasi GAS URL -->
+    <div id="configModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
+            <div class="flex items-center gap-3 mb-4 text-blue-600">
+                <i class="ph-fill ph-link text-2xl"></i>
+                <h3 class="text-lg font-bold text-gray-800">Konfigurasi Database</h3>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">Masukkan URL Web App dari Google Apps Script agar aplikasi terhubung ke database spreadsheet Anda.</p>
+            
+            <input type="text" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" 
+                class="w-full border-2 border-gray-300 rounded-lg p-3 text-sm focus:border-blue-500 focus:outline-none mb-4 transition-colors">
+            
+            <div class="flex gap-2 justify-end">
+                <button onclick="closeConfig()" id="btnCancelConfig" class="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors hidden">Batal</button>
+                <button onclick="saveConfig()" class="px-4 py-2 bg-blue-600 text-white font-medium hover:bg-blue-700 rounded-lg transition-colors shadow-sm">Simpan Konfigurasi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio untuk Beep -->
+    <audio id="beepSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <script>
+    let html5QrcodeScanner;
+    let isProcessing = false;
+    let lastScan = "";
+    let lastScanTime = 0;
+
+    // ✅ STATIC GAS URL
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxFTEjFQTnZWxsRRcWKPoTArV0KH9d1xUGz3pWBumOltJ-SGJcJvPm_7tJp0MgaD6Xumg/exec";
+    const ACCESS_TOKEN = "PANITIA2026"; // ganti sesuai kebutuhan
+
+    // 🚀 Langsung start scanner (tanpa config)
+    document.addEventListener("DOMContentLoaded", () => {
+    checkAccess();
+    });
+
+    function checkAccess() {
+    const isAuthorized = sessionStorage.getItem("AUTHORIZED");
+
+        if (isAuthorized === "true") {
+            startScanner();
+            return;
+        }
+
+        Swal.fire({
+            title: 'Akses Scanner',
+            text: 'Masukkan token untuk melanjutkan',
+            input: 'password',
+            inputPlaceholder: 'Masukkan token...',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            confirmButtonText: 'Masuk',
+            confirmButtonColor: '#2563eb',
+            preConfirm: (inputValue) => {
+                if (!inputValue) {
+                    Swal.showValidationMessage('Token tidak boleh kosong');
+                    return false;
+                }
+
+                if (inputValue !== ACCESS_TOKEN) {
+                    Swal.showValidationMessage('Token salah ❌');
+                    return false;
+                }
+
+                return true;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                sessionStorage.setItem("AUTHORIZED", "true");
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Akses Diberikan',
+                    timer: 1000,
+                    showConfirmButton: false
+                }).then(() => {
+                    startScanner();
+                });
+            }
+        });
+    }
+
+    // Inisialisasi Scanner
+    function startScanner() {
+        html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader",
+            { 
+                fps: 10, 
+                qrbox: {width: 250, height: 250},
+                supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+                rememberLastUsedCamera: true,
+                aspectRatio: 1.0
+            },
+            false
+        );
+        
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    }
+
+    // Jika QR berhasil terbaca
+    function onScanSuccess(decodedText) {
+
+        if (isProcessing) return;
+
+        const now = Date.now();
+
+        // 🔥 Anti double scan 5 detik
+        if (decodedText === lastScan && (now - lastScanTime < 5000)) {
+            return;
+        }
+
+        lastScan = decodedText;
+        lastScanTime = now;
+
+        isProcessing = true;
+
+        // 🔊 Beep
+        document.getElementById('beepSound').play()
+        .catch(() => console.log("Audio blocked"));
+
+        html5QrcodeScanner.pause(true);
+
+        document.getElementById('loading').classList.remove('hidden');
+        hideResult();
+
+        // ✅ PAKAI STATIC URL
+        const requestUrl = `${GAS_URL}?id=${encodeURIComponent(decodedText)}`;
+
+        fetch(requestUrl)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('loading').classList.add('hidden');
+            showResult(data);
+
+            setTimeout(() => {
+                html5QrcodeScanner.resume();
+                isProcessing = false;
+
+                setTimeout(hideResult, 5000);
+            }, 3000);
+        })
+        .catch(err => {
+            document.getElementById('loading').classList.add('hidden');
+
+            showResult({
+                status: 'error',
+                message: 'Koneksi gagal. Cek internet.'
+            });
+
+            console.error(err);
+
+            setTimeout(() => {
+                html5QrcodeScanner.resume();
+                isProcessing = false;
+            }, 3000);
+        });
+    }
+
+    // Ignore error scan
+    function onScanFailure(error) {}
+
+    // UI hasil
+    function showResult(data) {
+        const card = document.getElementById('resultCard');
+        const icon = document.getElementById('resultIcon');
+        const title = document.getElementById('resultTitle');
+        const message = document.getElementById('resultMessage');
+
+        card.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'bg-yellow-100');
+        card.classList.add('block');
+
+        message.innerText = data.message;
+
+        if (data.status === 'success') {
+            card.classList.add('bg-green-100', 'text-green-800');
+            icon.innerHTML = '<i class="ph-fill ph-check-circle text-green-600"></i>';
+            title.innerText = 'Kehadiran Tercatat';
+        } else if (data.status === 'warning') {
+            card.classList.add('bg-yellow-100', 'text-yellow-800');
+            icon.innerHTML = '<i class="ph-fill ph-warning-circle text-yellow-600"></i>';
+            title.innerText = 'Peringatan';
+        } else {
+            card.classList.add('bg-red-100', 'text-red-800');
+            icon.innerHTML = '<i class="ph-fill ph-x-circle text-red-600"></i>';
+            title.innerText = 'Gagal';
+        }
+    }
+
+    function logout() {
+        sessionStorage.removeItem("AUTHORIZED");
+        location.reload();
+    }
+
+    function hideResult() {
+        document.getElementById('resultCard').classList.add('hidden');
+        document.getElementById('resultCard').classList.remove('block');
+    }
+    </script>
+</body>
+</html>
