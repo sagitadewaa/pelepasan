@@ -69,7 +69,58 @@
 
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxFTEjFQTnZWxsRRcWKPoTArV0KH9d1xUGz3pWBumOltJ-SGJcJvPm_7tJp0MgaD6Xumg/exec";
+const ACCESS_TOKEN = "PANITIA2026"; // ganti sesuai kebutuhan
 
+    // 🚀 Langsung start scanner (tanpa config)
+    document.addEventListener("DOMContentLoaded", () => {
+    checkAccess();
+    });
+
+    function checkAccess() {
+    const isAuthorized = sessionStorage.getItem("AUTHORIZED");
+
+        if (isAuthorized === "true") {
+            startScanner();
+            return;
+        }
+
+        Swal.fire({
+            title: 'Akses Scanner',
+            text: 'Masukkan token untuk melanjutkan',
+            input: 'password',
+            inputPlaceholder: 'Masukkan token...',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            confirmButtonText: 'Masuk',
+            confirmButtonColor: '#2563eb',
+            preConfirm: (inputValue) => {
+                if (!inputValue) {
+                    Swal.showValidationMessage('Token tidak boleh kosong');
+                    return false;
+                }
+
+                if (inputValue !== ACCESS_TOKEN) {
+                    Swal.showValidationMessage('Token salah ❌');
+                    return false;
+                }
+
+                return true;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                sessionStorage.setItem("AUTHORIZED", "true");
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Akses Diberikan',
+                    timer: 1000,
+                    showConfirmButton: false
+                }).then(() => {
+                    startScanner();
+                });
+            }
+        });
+    }
 let lastRenderedData = [];
 
 async function loadDashboard() {
