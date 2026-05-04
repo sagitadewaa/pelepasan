@@ -640,6 +640,7 @@ input {
 
 <script>
 let dataSiswa = [];
+let dataVIP = [];
 
 function toHuruf(num) {
   const huruf = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -647,7 +648,7 @@ function toHuruf(num) {
 }
 
 // 🔗 GANTI DENGAN URL WEB APP GAS
-const API_URL = "https://script.google.com/macros/s/AKfycbxFTEjFQTnZWxsRRcWKPoTArV0KH9d1xUGz3pWBumOltJ-SGJcJvPm_7tJp0MgaD6Xumg/exec?action=cek_kartu";
+const BASE_URL = "https://script.google.com/macros/s/AKfycbxFTEjFQTnZWxsRRcWKPoTArV0KH9d1xUGz3pWBumOltJ-SGJcJvPm_7tJp0MgaD6Xumg/exec";
 
 function loadData() {
   const input = document.getElementById("search");
@@ -655,18 +656,21 @@ function loadData() {
   input.disabled = true;
   document.getElementById("loading").classList.add("show");
 
-  fetch(API_URL)
-    .then(res => res.json())
-    .then(res => {
-      dataSiswa = res;
+  Promise.all([
+    fetch(BASE_URL + "?action=cek_kartu").then(res => res.json()),
+    fetch(BASE_URL + "?action=vip").then(res => res.json())
+  ])
+  .then(([siswa, vip]) => {
+    dataSiswa = siswa;
+    dataVIP = vip;
 
-      document.getElementById("loading").classList.remove("show");
-      input.disabled = false;
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Gagal mengambil data");
-    });
+    document.getElementById("loading").classList.remove("show");
+    input.disabled = false;
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Gagal mengambil data");
+  });
 }
 
 function cariNama() {
@@ -698,21 +702,40 @@ function showSiswa(noMeja) {
 
   // skip VIP
   if (String(noMeja).includes("VIP")) {
-    document.getElementById("modalTitle").innerText = "Meja VIP";
 
-    document.getElementById("modalBody").innerHTML = `
-    <div style="text-align:center; padding:20px;">
-      <div style="font-size:30px;">👑</div>
-      <p style="font-size:14px; color:#555;">
-        Meja VIP tidak menampilkan data tamu
-      </p>
-    </div>
-  `;
+  const listVIP = dataVIP.filter(v => String(v.meja) === String(noMeja));
 
-    document.getElementById("modalSiswa").style.display = "block";
+  let html = "";
 
-    return;
+  if (listVIP.length === 0) {
+    html = `
+      <div style="text-align:center; padding:20px;">
+        <div style="font-size:30px;">👑</div>
+        <p>Belum ada data tamu</p>
+      </div>
+    `;
+  } else {
+    html = `
+      <ul>
+        ${listVIP.map((v,i)=>`
+          <li>
+            <b>${i+1}. ${v.nama}</b><br>
+            <small>${v.ket || "-"}</small>
+          </li>
+        `).join("")}
+      </ul>
+    `;
   }
+
+ document.getElementById("modalTitle").innerText = 
+  String(noMeja).includes("VIP") 
+    ? "👑 " + noMeja 
+    : "Table " + toHuruf(noMeja);
+  document.getElementById("modalBody").innerHTML = html;
+  document.getElementById("modalSiswa").style.display = "block";
+
+  return;
+}
 
   // filter data
   const list = dataSiswa.filter(s => String(s.posisi) === String(noMeja));
