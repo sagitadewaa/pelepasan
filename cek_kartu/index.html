@@ -719,8 +719,7 @@ function showSiswa(noMeja) {
       <ul>
         ${listVIP.map((v,i)=>`
           <li>
-            <b>${i+1}. ${v.nama}</b><br>
-            <small>${v.ket || "-"}</small>
+            <b>${i+1}. ${v.nama}</b> - <small>${v.ket || "-"}</small>
           </li>
         `).join("")}
       </ul>
