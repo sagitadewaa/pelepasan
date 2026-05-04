@@ -727,9 +727,9 @@ function showSiswa(noMeja) {
   }
 
  document.getElementById("modalTitle").innerText = 
-  String(noMeja).includes("VIP") 
-    ? "👑 " + noMeja 
-    : "Table " + toHuruf(noMeja);
+  String(noMeja).includes("VIP")
+    ? "👑 VIP " + noMeja
+    : "🎓 Meja " + toHuruf(noMeja);
   document.getElementById("modalBody").innerHTML = html;
   document.getElementById("modalSiswa").style.display = "block";
 
@@ -760,10 +760,7 @@ function showSiswa(noMeja) {
     `;
   }
 
-  document.getElementById("modalTitle").innerText = 
-    String(noMeja).includes("Table") 
-    ? "🎓 " + noMeja 
-    : "Table " + toHuruf(noMeja);
+  document.getElementById("modalTitle").innerText = "Table " + toHuruf(noMeja);
   document.getElementById("modalBody").innerHTML = html;
 
   document.getElementById("modalSiswa").style.display = "block";
