@@ -700,43 +700,40 @@ function cariNama() {
 
 function showSiswa(noMeja) {
 
-  // skip VIP
+  // ================= VIP =================
   if (String(noMeja).includes("VIP")) {
 
-  const listVIP = dataVIP.filter(v => String(v.meja) === String(noMeja));
+    const listVIP = dataVIP.filter(v => String(v.meja) === String(noMeja));
 
-  let html = "";
+    let html = "";
 
-  if (listVIP.length === 0) {
-    html = `
-      <div style="text-align:center; padding:20px;">
-        <div style="font-size:30px;">👑</div>
-        <p>Belum ada data tamu</p>
-      </div>
-    `;
-  } else {
-    html = `
-      <ul>
-        ${listVIP.map((v,i)=>`
-          <li>
-            <b>${i+1}. ${v.nama}</b> - <small>${v.ket || "-"}</small>
-          </li>
-        `).join("")}
-      </ul>
-    `;
+    if (listVIP.length === 0) {
+      html = `
+        <div style="text-align:center; padding:20px;">
+          <div style="font-size:30px;">👑</div>
+          <p>Belum ada data tamu</p>
+        </div>
+      `;
+    } else {
+      html = `
+        <ul>
+          ${listVIP.map((v,i)=>`
+            <li>
+              <b>${i+1}. ${v.nama}</b> - <small>${v.ket || "-"}</small>
+            </li>
+          `).join("")}
+        </ul>
+      `;
+    }
+
+    document.getElementById("modalTitle").innerText = "👑 VIP " + noMeja;
+    document.getElementById("modalBody").innerHTML = html;
+    document.getElementById("modalSiswa").style.display = "block";
+
+    return;
   }
 
- document.getElementById("modalTitle").innerText = 
-  String(noMeja).includes("VIP")
-    ? "👑 VIP " + noMeja
-    : "🎓 Meja " + toHuruf(noMeja);
-  document.getElementById("modalBody").innerHTML = html;
-  document.getElementById("modalSiswa").style.display = "block";
-
-  return;
-}
-
-  // filter data
+  // ================= SISWA =================
   const list = dataSiswa.filter(s => String(s.posisi) === String(noMeja));
 
   let html = "";
@@ -749,7 +746,7 @@ function showSiswa(noMeja) {
       </div>
     `;
   } else {
-    html = `   
+    html = `
       <ul>
         ${list.map((s,i)=>`
           <li>
@@ -760,10 +757,12 @@ function showSiswa(noMeja) {
     `;
   }
 
-  // document.getElementById("modalTitle").innerText = "Table " + toHuruf(noMeja);
-  // document.getElementById("modalBody").innerHTML = html;
+  // 🔥 FIX DI SINI
+  document.getElementById("modalTitle").innerText =
+    "🎓 Table " + toHuruf(noMeja);
 
-  // document.getElementById("modalSiswa").style.display = "block";
+  document.getElementById("modalBody").innerHTML = html;
+  document.getElementById("modalSiswa").style.display = "block";
 }
 
 function closeModal() {
