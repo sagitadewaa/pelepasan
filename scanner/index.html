@@ -34,9 +34,9 @@
             <!-- <button onclick="openConfig()" class="p-2 bg-blue-700 hover:bg-blue-800 rounded-full transition-colors">
                 <i class="ph ph-logout text-xl"></i>
             </button> -->
-            <button onclick="logout()" class="class="p-2 bg-blue-700 hover:bg-blue-800 rounded-full transition-colors">
+            <!-- <button onclick="logout()" class="class="p-2 bg-blue-700 hover:bg-blue-800 rounded-full transition-colors">
                 <i class="ph ph-sign-out text-xl"></i>
-            </button>
+            </button> -->
 
         </div>
     </header>
@@ -255,10 +255,10 @@
         }
     }
 
-    function logout() {
-        sessionStorage.removeItem("AUTHORIZED");
-        location.reload();
-    }
+    // function logout() {
+    //     sessionStorage.removeItem("AUTHORIZED");
+    //     location.reload();
+    // }
 
     function hideResult() {
         document.getElementById('resultCard').classList.add('hidden');
